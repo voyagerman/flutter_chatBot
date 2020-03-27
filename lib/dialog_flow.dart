@@ -16,25 +16,42 @@ class _FlutterFactsChatBotState extends State<FlutterFactsChatBot> {
   final List<Facts> messageList = <Facts>[];
   final TextEditingController _textController = new TextEditingController();
 
+  // DialogFlow Variables
+  bool isDialogFlowInitialized;
+  AuthGoogle authGoogle;
+  Dialogflow dialogFlow;
+
+  @override
+  void initState() {
+    isDialogFlowInitialized = false;
+    initializeDialogFlow();
+    super.initState();
+  }
+
   Widget _queryInputWidget(BuildContext context) {
     return Card(
-      margin: EdgeInsets.all(10),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(30))),
+      margin: EdgeInsets.all(12),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(30))),
       child: Padding(
-        padding: const EdgeInsets.only(left:8.0, right: 8),
+        padding: const EdgeInsets.only(left: 16.0, right: 8),
         child: Row(
           children: <Widget>[
             Flexible(
               child: TextField(
                 controller: _textController,
                 onSubmitted: _submitQuery,
-                decoration: InputDecoration.collapsed(hintText: "Send a message"),
+                decoration:
+                    InputDecoration.collapsed(hintText: "Send a message"),
               ),
             ),
             Container(
-              margin: EdgeInsets.symmetric(horizontal: 4.0),
+              // margin: EdgeInsets.symmetric(horizontal: 2.0),
               child: IconButton(
-                  icon: Icon(Icons.send, color: Colors.green[400],),
+                  icon: Icon(
+                    Icons.send,
+                    color: Color(0xff1c6bb0),
+                  ),
                   onPressed: () => _submitQuery(_textController.text)),
             ),
           ],
@@ -45,15 +62,16 @@ class _FlutterFactsChatBotState extends State<FlutterFactsChatBot> {
 
   void agentResponse(query) async {
     _textController.clear();
-    AuthGoogle authGoogle =
-    await AuthGoogle(fileJson: "assets/NewAgent-81fafa8cda2c.json").build();
-    Dialogflow dialogFlow =
-    Dialogflow(authGoogle: authGoogle, language: Language.english);
+    // AuthGoogle authGoogle = await AuthGoogle(
+    //         fileJson: "assets/voyagermanbot-yqunnx-e531de339b4f.json")
+    //     .build();
+    // Dialogflow dialogFlow =
+    //     Dialogflow(authGoogle: authGoogle, language: Language.english);
     AIResponse response = await dialogFlow.detectIntent(query);
     Facts message = Facts(
       text: response.getMessage() ??
           CardDialogflow(response.getListMessage()[0]).title,
-      name: "Flutter",
+      name: "Voyagerman",
       type: false,
     );
     setState(() {
@@ -79,20 +97,43 @@ class _FlutterFactsChatBotState extends State<FlutterFactsChatBot> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text("Flutter Facts", style: TextStyle(color: Colors.green[400]),),
+        title: Text(
+          widget.title,
+          style: TextStyle(color: Color(0xff1c6bb0)),
+        ),
         backgroundColor: Colors.white,
-        elevation: 0,
+        elevation: 5,
       ),
-      body: Column(children: <Widget>[
-        Flexible(
-            child: ListView.builder(
-              padding: EdgeInsets.all(8.0),
-              reverse: true, //To keep the latest messages at the bottom
-              itemBuilder: (_, int index) => messageList[index],
-              itemCount: messageList.length,
-            )),
-        _queryInputWidget(context),
-      ]),
+      body: Container(
+          decoration: BoxDecoration(
+              gradient: LinearGradient(colors: [
+            Colors.blueAccent.withOpacity(0.15),
+            Colors.blueAccent.withOpacity(0.05),
+          ],begin: Alignment.topCenter, end: Alignment.bottomCenter)),
+          child: isDialogFlowInitialized
+              ? Column(
+                
+                children: <Widget>[
+                  Flexible(
+                      child: ListView.builder(
+                    padding: EdgeInsets.all(8.0),
+                    reverse: true, //To keep the latest messages at the bottom
+                    itemBuilder: (_, int index) => messageList[index],
+                    itemCount: messageList.length,
+                  )),
+                  _queryInputWidget(context),
+                ])
+              : LinearProgressIndicator()),
     );
+  }
+
+  void initializeDialogFlow() async {
+    authGoogle = await AuthGoogle(
+            fileJson: "assets/voyagermanbot-yqunnx-e531de339b4f.json")
+        .build();
+    dialogFlow = Dialogflow(authGoogle: authGoogle, language: Language.english);
+    setState(() {
+      isDialogFlowInitialized = true;
+    });
   }
 }

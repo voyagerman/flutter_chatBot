@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+// import 'package:flutter/services.dart';
 import 'package:flutter_bot/dialog_flow.dart';
 
 void main() => runApp(MyApp());
@@ -9,13 +9,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
 
     return MaterialApp(
-      title: 'Flutter Facts',
+      title: 'Dialogflow Voyagerman',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.green,
-        accentColor: Colors.green,
+        primarySwatch: Colors.blue,
+        accentColor: Color(0xff1c6bb0),
       ),
-      home: FlutterFactsChatBot(),
+      home: FlutterFactsChatBot(
+        title: 'Dialogflow Voyagerman',
+      ),
     );
   }
 }
